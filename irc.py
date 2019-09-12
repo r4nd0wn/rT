@@ -32,7 +32,6 @@ class IRC:
     def get_parsed_message(self):
         text = self.irc.recv(2040).decode("utf-8")
 
-        timestamp = datetime.datetime.now()
 
         if text.find("PING") != -1:
             self.irc.send(bytes('PONG ' + text.split()[1] + '\r\n', "UTF-8 "))
@@ -47,10 +46,6 @@ class IRC:
 
     def get_splitted_message(self):
         text = self.irc.recv(2040).decode("utf-8")
-
-        timestamp = datetime.datetime.now()
-        timestr = str(timestamp.hour) + ":" + str(timestamp.minute) + ":" + str(timestamp.second)
-
         if text.find("PING") != -1:
             self.irc.send(bytes('PONG ' + text.split()[1] + '\r\n', "UTF-8 "))
             print("received a ping, send a pong")
@@ -59,14 +54,21 @@ class IRC:
             msgun = text.split("!")[0][1:]
             tempmsg = text.split("PRIVMSG #" + self.channel + " :")
             content = tempmsg[1][:-2]
-            fullmessage = self.timestamp() + " - " + msgun + ": " + content
+            fullmessage = [self.timestamp(), msgun, content]
+            print(text)
             return fullmessage
+        else:
+            print(text)
+    def allow_Tags(self):
+        self.irc.send(bytes('CAP REQ :twitch.tv/tags', 'UTF-8'))
+        self.irc.send(bytes('CAP REQ :twitch.tv/membership', 'UTF-8'))
 
+# -------------------------------helping stuff-----------------------------
     def timestamp(self):
         now = datetime.datetime.now()
         timeun = [str(now.hour), str(now.minute), str(now.second)]
         for i, t in enumerate(timeun):
             if len(t) == 1:
                 timeun[i] = "0" + t
-        return timeun[0] + ":" + timeun[1] + ":" + timeun[2]
+        return timeun[0] + ":" + timeun[1]
 

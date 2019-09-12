@@ -6,12 +6,19 @@ from threading import Thread
 from time import sleep
 from irc import IRC
 import datetime
+import random
+import hashlib
+
 
 username = "rTsFetcher"
 oauth = "oauth:efhn2jfl093dyrdv94rd91vad3zdoy"
-channel = "r4nd0wn"
+channel = "thiseguy"
 chat1 = IRC(channel, username, oauth)
 chat1.connect()
+chat1.allow_Tags()
+userlist = []
+colorid = []
+
 
 
 
@@ -30,16 +37,22 @@ window.show()
 new_messages = []
 def fetch_new_messages():
     while True:
-        response = chat1.get_parsed_message()
+        response = chat1.get_splitted_message()
+
         if response:
             new_messages.append(response)
+
 
 thread = Thread(target=fetch_new_messages, daemon=True)
 thread.start()
 
 def display_new_messages():
     while new_messages:
-        text_area.appendPlainText(new_messages.pop(0))
+        message = new_messages.pop(0)
+        prefix = """<b><span style="color: """ + getUserColor(message[1]) + """;">"""
+        postfix = "</span></b>"
+        print(message)
+        text_area.appendHtml("<small>" + message[0] + "</small>" + " " + prefix + message[1] + postfix + ": " + message[2])
 
 def send_message():
     try:
@@ -53,10 +66,20 @@ def send_message():
     except Exception as e:
         print(e)
 
+def getUserColor(usr):
+    color = "#" + str(hashlib.sha512(usr.encode("UTF-8")).hexdigest())[0:6]
+    return color
 
+def random_color():
+    color = "#" + ''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+    return color
+
+def create_user(username):
+    userlist.append(username)
+    colorid.insert(userlist.index(username), random_color())
 message.returnPressed.connect(send_message)
 timer = QTimer()
 timer.timeout.connect(display_new_messages)
-timer.start(1000)
+timer.start(100)
 
 app.exec_()
