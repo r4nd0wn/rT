@@ -15,7 +15,6 @@ oauth = "oauth:efhn2jfl093dyrdv94rd91vad3zdoy"
 channel = "thiseguy"
 chat1 = IRC(channel, username, oauth)
 chat1.connect()
-chat1.allow_Tags()
 userlist = []
 colorid = []
 
