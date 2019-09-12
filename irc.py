@@ -71,4 +71,3 @@ class IRC:
             if len(t) == 1:
                 timeun[i] = "0" + t
         return timeun[0] + ":" + timeun[1]
-
